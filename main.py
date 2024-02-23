@@ -1,7 +1,11 @@
+import os
+from dotenv import load_dotenv
 from Currency import Currency
 import arrow
 
-days_number = 90
+
+load_dotenv()
+days_number = int(os.environ.get('DAYS_NUMBER'))
 date2 = current_date = arrow.now()
 date1 = date2.shift(days=-days_number).format('DD/MM/YYYY')
 date2 = date2.format('DD/MM/YYYY')
