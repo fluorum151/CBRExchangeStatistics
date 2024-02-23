@@ -6,9 +6,6 @@ date2 = current_date = arrow.now()
 date1 = date2.shift(days=-days_number).format('DD/MM/YYYY')
 date2 = date2.format('DD/MM/YYYY')
 
-print(date1)
-print(date2)
-
 usd, eu, chf, gbp, jpy, cny, aud, cnd = (Currency('R01235', 'USD'),
                                          Currency('R01239', 'EU'),
                                          Currency('R01775', 'CHF'),
