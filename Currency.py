@@ -27,9 +27,9 @@ class Currency:
         self.min_rate = self.curr_dict[self.min_rate_date]
         self.rate_avg = sum(self.curr_dict.values()) / len(self.curr_dict)
 
-    def get_currency(self):
-        response = requests.get("https://www.cbr.ru/scripts/XML_dynamic.asp?"
-                                "date_req1=15/02/2024&date_req2=22/02/2024&VAL_NM_RQ=" + self.cbr_id)
+    def get_currency(self, date1, date2):
+        response = requests.get(f"https://www.cbr.ru/scripts/XML_dynamic.asp?"
+                                f"date_req1={date1}&date_req2={date2}&VAL_NM_RQ={self.cbr_id}")
 
         string_xml = response.content
         tree = ElementTree.fromstring(string_xml)
