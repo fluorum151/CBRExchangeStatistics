@@ -1,14 +1,16 @@
 import os
 from dotenv import load_dotenv
 from currency import Currency
-import arrow
+import datetime
 
 
 load_dotenv()
 days_number = int(os.environ.get('DAYS_NUMBER'))
-date2 = current_date = arrow.now()
-date1 = date2.shift(days=-days_number).format('DD/MM/YYYY')
-date2 = date2.format('DD/MM/YYYY')
+
+date2 = datetime.datetime.today()
+date1 = date2 - datetime.timedelta(days=90)
+date1 = date1.strftime("%d/%m/%Y")
+date2 = date2.strftime("%d/%m/%Y")
 
 usd, eu, chf, gbp, jpy, cny, aud, cnd = (Currency('R01235', 'USD'),
                                          Currency('R01239', 'EU'),
