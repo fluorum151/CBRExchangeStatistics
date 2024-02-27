@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from Currency import Currency
+from currency import Currency
 import arrow
 
 
