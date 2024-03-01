@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ElementTree
 import requests
+import database
 
 
 class Currency:
@@ -33,7 +34,12 @@ class Currency:
 
         string_xml = response.content
         tree = ElementTree.fromstring(string_xml)
+        db_engine = database.create_connect()
 
         for value in tree:
-            self.curr_dict[value.attrib['Date']] = float(value[1].text.replace(',', '.'))
+            date = value.attrib['Date']
+            db_date = date[6:] + '-' + date[3:5] + '-' + date[0:2]
+            rate = float(value[1].text.replace(',', '.'))
+            self.curr_dict[date] = rate
+            database.insert_db(db_engine, db_date, rate)
 
