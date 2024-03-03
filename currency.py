@@ -35,11 +35,13 @@ class Currency:
         string_xml = response.content
         tree = ElementTree.fromstring(string_xml)
         db_engine = database.create_connect()
+        xname = self.name
+        table = database.create_table(db_engine, xname)
+        table_class = database.create_class(table)
 
         for value in tree:
             date = value.attrib['Date']
             db_date = date[6:] + '-' + date[3:5] + '-' + date[0:2]
             rate = float(value[1].text.replace(',', '.'))
             self.curr_dict[date] = rate
-            database.insert_db(db_engine, db_date, rate)
-
+            database.insert_db(db_engine, table, db_date, rate)

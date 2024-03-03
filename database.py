@@ -1,20 +1,42 @@
-import sqlalchemy
+from sqlalchemy import Column, Table, Date, Double, create_engine
+from sqlalchemy.orm import DeclarativeBase, Session, registry
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+mapper_registry = registry()
 
 
 def create_connect():
-    engine = sqlalchemy.create_engine("mysql+mysqlconnector://root:erdtreeroot@localhost/cbrtest")
+    engine = create_engine("mysql+mysqlconnector://root:erdtreeroot@localhost/cbrtest")
     return engine
 
 
-def insert_db(engine, date, rate):
-    with engine.connect() as connection:
-        connection.execute(sqlalchemy.text("INSERT INTO usd (date, rate) VALUES (:date, :rate)"),
-                           {"date": date, "rate": rate})
-        connection.commit()
+def create_table(engine, name):
+    table = Table(
+        name, mapper_registry.metadata,
+        Column('date', Date, primary_key=True),
+        Column('rate', Double),
+    )
+    mapper_registry.metadata.create_all(engine)
+    return table
 
 
-engine = create_connect()
-insert_db(engine, '2006-11-11', '64.5675')
+def create_class(table):
+    class Currency:
+        pass
 
-date1 = '17.01.2024'
-date2 = date1[6:] + '-' + date1[3:5] + '-' + date1[0:2]
+    mapper_registry.map_imperatively(Currency, table)
+    return Currency()
+
+
+def insert_db(engine, table, date, rate):
+    with Session(engine) as session:
+        db_class = create_class(table)
+        db_class.date = date
+        db_class.rate = rate
+        session.add(db_class)
+        session.commit()
+        session.close()

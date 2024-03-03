@@ -15,15 +15,9 @@ date2 = date2.strftime("%d/%m/%Y")
 
 CURRENCIES = json.loads(os.environ['CURRENCIES'])
 
-usd = Currency("R01235","USD")
-
-usd.get_currency(date1, date2)
-usd.get_exchange_data()
-print(usd)
-
-# if __name__ == '__main__':
-#     for curr in CURRENCIES:
-#         currency = Currency(curr[0], curr[1])
-#         currency.get_currency(date1, date2)
-#         currency.get_exchange_data()
-#         print(currency)
+if __name__ == '__main__':
+    for curr in CURRENCIES:
+        currency = Currency(curr[0], curr[1])
+        currency.get_currency(date1, date2)
+        currency.get_exchange_data()
+        print(currency)
