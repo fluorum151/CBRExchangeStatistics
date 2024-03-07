@@ -1,12 +1,17 @@
-from sqlalchemy import Column, Table, Date, Double, create_engine
-from sqlalchemy.orm import DeclarativeBase, Session, registry
+from dotenv import load_dotenv
+from sqlalchemy import Date, Double, String, create_engine, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Session
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+import os
+import json
+
+load_dotenv()
+CURRENCIES = json.loads(os.environ['CURRENCIES'])
 
 
 class Base(DeclarativeBase):
     pass
-
-
-mapper_registry = registry()
 
 
 def create_connect():
@@ -14,29 +19,42 @@ def create_connect():
     return engine
 
 
-def create_table(engine, name):
-    table = Table(
-        name, mapper_registry.metadata,
-        Column('date', Date, primary_key=True),
-        Column('rate', Double),
-    )
-    mapper_registry.metadata.create_all(engine)
-    return table
+class Currency(Base):
+    __tablename__ = "currencies"
+    id: Mapped[str] = mapped_column(String(10), primary_key=True)
+    name: Mapped[str] = mapped_column(String(10))
+
+    def __repr__(self) -> str:
+        return f"Currency(id={self.id!r}, name={self.name!r})"
 
 
-def create_class(table):
-    class Currency:
-        pass
+class ExchangeData(Base):
+    __tablename__ = "exchange_data"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    currency_id = mapped_column(ForeignKey("currencies.id"))
+    date: Mapped[str] = mapped_column(Date)
+    exchange_rate: Mapped[float] = mapped_column(Double)
 
-    mapper_registry.map_imperatively(Currency, table)
-    return Currency()
+    def __repr__(self) -> str:
+        return f"ExchangeData(id={self.id!r}, date={self.date!r}, rate={self.exchange_rate!r})"
 
 
-def insert_db(engine, table, date, rate):
+def create_databases(engine):
     with Session(engine) as session:
-        db_class = create_class(table)
+        for curr in CURRENCIES:
+            currency = Currency()
+            currency.id = curr[0]
+            currency.name = curr[1]
+            session.add(currency)
+        session.commit()
+        session.close()
+
+
+def insert_db(engine, date, rate):
+    with Session(engine) as session:
+        db_class = ExchangeData()
+        db_class.exchange_rate = rate
         db_class.date = date
-        db_class.rate = rate
         session.add(db_class)
         session.commit()
         session.close()
