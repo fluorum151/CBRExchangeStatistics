@@ -21,8 +21,9 @@ def create_connect():
 
 class Currency(Base):
     __tablename__ = "currencies"
-    id: Mapped[str] = mapped_column(String(10), primary_key=True)
-    name: Mapped[str] = mapped_column(String(10))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cbr_id: Mapped[str] = mapped_column(String(10)) #, primary_key=True)
+    name: Mapped[str] = mapped_column(String(10)) #, primary_key=True)
 
     def __repr__(self) -> str:
         return f"Currency(id={self.id!r}, name={self.name!r})"
@@ -31,9 +32,9 @@ class Currency(Base):
 class ExchangeData(Base):
     __tablename__ = "exchange_data"
     id: Mapped[int] = mapped_column(primary_key=True)
-    date: Mapped[str] = mapped_column(Date)
+    currency: Mapped[str] = mapped_column(String(10))
     exchange_rate: Mapped[float] = mapped_column(Double)
-    # currency_name: Mapped[str] = mapped_column(ForeignKey("currencies.name"))
+    date: Mapped[str] = mapped_column(Date)
 
     def __repr__(self) -> str:
         return f"ExchangeData(id={self.id!r}, date={self.date!r}, rate={self.exchange_rate!r})"
@@ -44,14 +45,16 @@ def create_classes(engine):
 
 
 def create_currencies(session, cbr_id, name):
-    curr_class = Currency()
-    curr_class.id = cbr_id
-    curr_class.name = name
-    session.add(curr_class)
+    currency = Currency()
+    currency.cbr_id = cbr_id
+    currency.name = name
+    session.add(currency)
+    return currency
 
 
-def insert_db(session, date, rate):
+def insert_db(session, name, rate, date):
     db_class = ExchangeData()
+    db_class.currency = name
     db_class.exchange_rate = rate
     db_class.date = date
     session.add(db_class)
