@@ -28,17 +28,16 @@ class Currency:
         self.min_rate = self.curr_dict[self.min_rate_date]
         self.rate_avg = sum(self.curr_dict.values()) / len(self.curr_dict)
 
-    def get_currency(self, date1, date2):
+    def get_currency(self, session, date1, date2):
         response = requests.get(f"https://www.cbr.ru/scripts/XML_dynamic.asp?"
                                 f"date_req1={date1}&date_req2={date2}&VAL_NM_RQ={self.cbr_id}")
 
         string_xml = response.content
         tree = ElementTree.fromstring(string_xml)
-        db_engine = database.create_connect()
 
         for value in tree:
             date = value.attrib['Date']
             db_date = date[6:] + '-' + date[3:5] + '-' + date[0:2]
             rate = float(value[1].text.replace(',', '.'))
             self.curr_dict[date] = rate
-            database.insert_db(db_engine, db_date, rate)
+            database.insert_db(session, db_date, rate)
