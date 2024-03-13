@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
-from sqlalchemy import Date, Double, String, create_engine, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Session, relationship
+from sqlalchemy import Date, Double, String, create_engine
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 import os
@@ -44,12 +44,12 @@ def create_classes(engine):
     Base.metadata.create_all(engine)
 
 
-def create_currencies(session, cbr_id, name):
+def create_currency(session, cbr_id, name):
     currency = Currency()
     currency.cbr_id = cbr_id
     currency.name = name
     session.add(currency)
-    return currency
+    session.commit()
 
 
 def insert_db(session, name, rate, date):
