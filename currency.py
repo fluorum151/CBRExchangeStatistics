@@ -1,5 +1,7 @@
 import xml.etree.ElementTree as ElementTree
 import requests
+import sqlalchemy
+from sqlalchemy import and_
 import database
 
 
@@ -40,4 +42,8 @@ class Currency:
             db_date = date[6:] + '-' + date[3:5] + '-' + date[0:2]
             rate = float(value[1].text.replace(',', '.'))
             self.curr_dict[date] = rate
-            database.insert_db(session, name, rate, db_date)
+            record_exists = session.query(sqlalchemy.exists()
+                                          .where(and_(database.ExchangeData.currency == name,
+                                                      database.ExchangeData.date == db_date))).scalar()
+            if not record_exists:
+                database.insert_db(session, name, rate, db_date)
