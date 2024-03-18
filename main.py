@@ -4,6 +4,7 @@ import os
 
 import sqlalchemy
 from dotenv import load_dotenv
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from currency import Currency
 import database
@@ -29,7 +30,17 @@ if __name__ == '__main__':
                 database.create_currency(session, curr[0], curr[1])
 
             currency = Currency(curr[0], curr[1])
-            currency.get_currency(session, currency.name, date1, date2)
+            currency.get_currency(date1, date2)
+            for value in currency.tree:
+                currency.parse_currency(value)
             currency.get_exchange_data()
-            session.commit()
+
+            for date, rate in currency.curr_dict.items():
+                db_date = date[6:] + '-' + date[3:5] + '-' + date[0:2]
+                record_exists = session.query(sqlalchemy.exists()
+                                              .where(and_(database.ExchangeData.currency == currency.name,
+                                                          database.ExchangeData.date == db_date))).scalar()
+                if not record_exists:
+                    database.insert_db(session, currency.name, rate, db_date)
+                session.commit()
             print(currency)
