@@ -1,14 +1,12 @@
 import xml.etree.ElementTree as ElementTree
 import requests
-import sqlalchemy
-from sqlalchemy import and_
-import database
 
 
 class Currency:
     def __init__(self, cbr_id, curr_name):
         self.cbr_id = cbr_id
         self.name = curr_name
+        self.tree = []
         self.curr_dict = {}
         self.max_rate_date = ''
         self.min_rate_date = ''
@@ -30,20 +28,14 @@ class Currency:
         self.min_rate = self.curr_dict[self.min_rate_date]
         self.rate_avg = sum(self.curr_dict.values()) / len(self.curr_dict)
 
-    def get_currency(self, session, name, date1, date2):
+    def get_currency(self, date1, date2):
         response = requests.get(f"https://www.cbr.ru/scripts/XML_dynamic.asp?"
                                 f"date_req1={date1}&date_req2={date2}&VAL_NM_RQ={self.cbr_id}")
 
         string_xml = response.content
-        tree = ElementTree.fromstring(string_xml)
+        self.tree = ElementTree.fromstring(string_xml)
 
-        for value in tree:
-            date = value.attrib['Date']
-            db_date = date[6:] + '-' + date[3:5] + '-' + date[0:2]
-            rate = float(value[1].text.replace(',', '.'))
-            self.curr_dict[date] = rate
-            record_exists = session.query(sqlalchemy.exists()
-                                          .where(and_(database.ExchangeData.currency == name,
-                                                      database.ExchangeData.date == db_date))).scalar()
-            if not record_exists:
-                database.insert_db(session, name, rate, db_date)
+    def parse_currency(self, value):
+        date = value.attrib['Date']
+        rate = float(value[1].text.replace(',', '.'))
+        self.curr_dict[date] = rate

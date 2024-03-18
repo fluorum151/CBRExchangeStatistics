@@ -22,8 +22,8 @@ def create_connect():
 class Currency(Base):
     __tablename__ = "currencies"
     id: Mapped[int] = mapped_column(primary_key=True)
-    cbr_id: Mapped[str] = mapped_column(String(10)) #, primary_key=True)
-    name: Mapped[str] = mapped_column(String(10)) #, primary_key=True)
+    cbr_id: Mapped[str] = mapped_column(String(10))
+    name: Mapped[str] = mapped_column(String(10))
 
     def __repr__(self) -> str:
         return f"Currency(id={self.id!r}, name={self.name!r})"
